@@ -1,0 +1,840 @@
+# licence https://github.com/vfxwiki/nukeArtistToolkit/blob/master/
+#credit for the inverseOver maths  (1/(-1*InOv))*(BG-InOv) ) and idea of using it for keying goes to Thomas Dyn (credit retained in node)/ Although since discovering this someone else have also shown me this same technique from thier old shake toolbox - they called it the 'holy matte' trick.
+set cut_paste_input [stack 0]
+version 7.0 v6
+push $cut_paste_input
+Group {
+ name InverseOKeyer
+ label "\n"
+ selected true
+ xpos 17315
+ ypos -7001
+ addUserKnob {20 InverseOverKeyer l "Inverse Over Keyer"}
+ addUserKnob {26 textArea l "1) select screen  "}
+ addUserKnob {41 cropScreen l "crop screen" T MASTER.cropScreen}
+ addUserKnob {41 frameHold l "frame hold" T MASTER.frameHold}
+ addUserKnob {22 pySetFrame l " set this frame " -STARTLINE T "f=nuke.frame()\ng=nuke.thisNode()\ng.knob('frameHold').setValue(f)"}
+ addUserKnob {26 text02 l "2) match bars setup   "}
+ addUserKnob {41 setupMode l "setup mode" T MASTER.setupMode}
+ addUserKnob {41 KeyDensity l "key density" T MASTER.KeyDensity}
+ addUserKnob {41 minimum T MASTER.minimum}
+ addUserKnob {26 ""}
+ addUserKnob {26 test02 l fixMatteBlacks: T " "}
+ addUserKnob {41 fixMatteBlacks l "" -STARTLINE T MASTER.fixMatteBlacks}
+ addUserKnob {26 ""}
+ addUserKnob {41 maskChannel l mask T Keymix2.maskChannel}
+ addUserKnob {41 invertMask l invert -STARTLINE T Keymix2.invertMask}
+ addUserKnob {41 mix T MASTER.mix}
+ addUserKnob {20 notes}
+ addUserKnob {26 text04_1 l notes: T "beta v0.6b 24/06/14 vfxwiki.org\n\nInstructions: \n\nThis is not a keyer, its is a a different way of using an over \nand the reverse of an over (the InverseOver) together to\nmaintain fine transparent detail from a key(matte).\n\n1) plug in plate despill.\n2) plug in a very thin matte i.e. an unscale'd color difference or keylight matte. \n3) plug in the bg into the InverseOver.\n4) split the out of the InverseOKeyer into the inverseOver and a premult node.\n5) over the premult and the InverseOver.\n6) follow the instructions on the main tab."}
+ addUserKnob {22 HELP l " HELP " T "nukescripts.start('href=\"http://vfxwiki.org/tiki-index.php?page=Inverse+Over')" +STARTLINE}
+ addUserKnob {26 credit l "" +STARTLINE +INVISIBLE T "The idea of using this for keying and the name goes to Thomas Dyn (credit retained in node please)\n\nAlthough since discovering this technique someone else have also shown me this same technique from thier toolbox used in shake(pre-nuke) - they called it the 'holy matte' trick."}
+}
+ BackdropNode {
+  inputs 0
+  name BackdropNode2
+  tile_color 0x71c67100
+  label key
+  note_font_size 42
+  xpos -508
+  ypos -804
+  bdwidth 2948
+  bdheight 2860
+ }
+ Input {
+  inputs 0
+  name key
+  xpos 675
+  ypos -928
+ }
+ Clamp {
+  channels rgba
+  minimum {{MASTER.fixInfNans}}
+  name Clamp5
+  xpos 675
+  ypos -665
+ }
+ Shuffle {
+  red alpha
+  green alpha
+  blue alpha
+  name Shuffle10
+  xpos 675
+  ypos -641
+ }
+ Grade {
+  channels rgba
+  blackpoint {0.08146618307 0.08146618307 0.08146618307 0.08146618307}
+  whitepoint {0.9875434637 0.9875434637 0.9875434637 0.9875434637}
+  gamma 1.02
+  white_clamp true
+  name Grade1
+  xpos 654
+  ypos -537
+  disable true
+ }
+ Dot {
+  name Dot22
+  xpos 703
+  ypos -433
+ }
+ Dot {
+  name Dot44
+  xpos 703
+  ypos -238
+ }
+set Nf0d59380 [stack 0]
+ Dot {
+  name Dot16
+  xpos 703
+  ypos -26
+ }
+ Dot {
+  name Dot4
+  xpos 676
+  ypos -26
+ }
+set N304fa500 [stack 0]
+ Dot {
+  name Dot3
+  xpos 566
+  ypos -26
+ }
+set N78ac0d80 [stack 0]
+ FrameHold {
+  first_frame {{MASTER.frameHold}}
+  name FrameHold3
+  xpos 532
+  ypos 52
+ }
+ Crop {
+  box {{parent.MASTER.cropScreen} {parent.MASTER.cropScreen} {parent.MASTER.cropScreen} {parent.MASTER.cropScreen}}
+  name Crop7
+  xpos 532
+  ypos 112
+ }
+ Blur {
+  channels rgba
+  size 100
+  filter box
+  quality 25
+  name Blur4
+  xpos 563
+  ypos 167
+ }
+ Crop {
+  box {{parent.Crop7.box.x+((parent.Crop7.box.r-parent.Crop7.box.x)*0.5) x1012 -27} {int(parent.Crop7.box.y+((parent.Crop7.box.t-parent.Crop7.box.y)*0.5))} {int(parent.Crop7.box.x+((parent.Crop7.box.r-parent.Crop7.box.x)*0.5)+1)} {int(int(parent.Crop7.box.y+((parent.Crop7.box.t-parent.Crop7.box.y)*0.5)+1))}}
+  reformat true
+  crop false
+  name Crop8
+  xpos 532
+  ypos 218
+ }
+ Input {
+  inputs 0
+  name despill
+  xpos 1340
+  ypos -938
+  number 1
+ }
+ Shuffle {
+  alpha black
+  name Shuffle2
+  label "\[value in]-->\[value out]"
+  xpos 1340
+  ypos -684
+ }
+ Dot {
+  name Dot31
+  xpos 1364
+  ypos -498
+ }
+ Dot {
+  name Dot1
+  xpos 1364
+  ypos -100
+ }
+set Nfbfe8830 [stack 0]
+ Dot {
+  name Dot10
+  xpos 1252
+  ypos -100
+ }
+set Nfbfec950 [stack 0]
+ Dot {
+  name Dot14
+  xpos 1129
+  ypos -100
+ }
+ Shuffle {
+  red black
+  green black
+  blue black
+  alpha black
+  name Shuffle7
+  label "\[value in]-->\[value out]"
+  xpos 1095
+  ypos 273
+ }
+set Nfbff4c30 [stack 0]
+ Merge2 {
+  inputs 2
+  bbox B
+  name Merge10
+  xpos 532
+  ypos 279
+ }
+set N2ca2ae30 [stack 0]
+push $N2ca2ae30
+push $N304fa500
+ Merge2 {
+  inputs 2
+  operation min
+  name Min2
+  xpos 642
+  ypos 325
+ }
+ Merge2 {
+  inputs 2
+  operation divide
+  name Merge2
+  xpos 532
+  ypos 407
+ }
+push $N78ac0d80
+ Dot {
+  name Dot2
+  xpos 464
+  ypos -26
+ }
+ Merge2 {
+  inputs 2
+  operation multiply
+  name Merge9
+  xpos 430
+  ypos 450
+  disable {{!MASTER.fixMatteBlacks x1029 1}}
+ }
+ Grade {
+  channels rgba
+  black {{-MASTER.minimum}}
+  black_clamp false
+  name Grade3
+  xpos 430
+  ypos 545
+ }
+set N2ca63160 [stack 0]
+ Grade {
+  channels alpha
+  gamma {{parent.MASTER.KeyDensity x1002 1.26 x1027 0.99}}
+  black_clamp false
+  name GradeDensity
+  xpos 430
+  ypos 623
+ }
+set N2b22f7b0 [stack 0]
+ Grade {
+  channels rgba
+  black {{-MASTER.minimum}}
+  black_clamp false
+  name Grade2
+  xpos 324
+  ypos 665
+  disable true
+ }
+ Shuffle {
+  red alpha
+  green alpha
+  blue alpha
+  name Shuffle9
+  xpos 430
+  ypos 725
+ }
+ Clamp {
+  name Clamp3
+  xpos 430
+  ypos 749
+  disable true
+ }
+set N2b255760 [stack 0]
+ Dot {
+  name Dot9
+  xpos 952
+  ypos 755
+ }
+ Dot {
+  name Dot12
+  xpos 1090
+  ypos 755
+ }
+push $Nfbfec950
+ FrameHold {
+  first_frame {{FrameHold.first_frame}}
+  name FrameHold2
+  xpos 1218
+  ypos 452
+ }
+ Crop {
+  box {{parent.Crop1.box} {parent.Crop1.box} {parent.Crop1.box} {parent.Crop1.box}}
+  reformat true
+  crop false
+  name Crop2
+  xpos 1218
+  ypos 500
+ }
+ Blur {
+  channels rgba
+  size 100
+  filter box
+  name Blur1
+  xpos 1218
+  ypos 568
+ }
+ Crop {
+  box {{int(width/2)} {int(height/2)} {int(width/2)+1} {int(height/2)+1}}
+  reformat true
+  crop false
+  name Crop6
+  xpos 1218
+  ypos 622
+ }
+push $Nfbfe8830
+ Dot {
+  name Dot20
+  xpos 1364
+  ypos 417
+ }
+set N2a84b8c0 [stack 0]
+ Shuffle {
+  red black
+  green black
+  blue black
+  alpha black
+  name Shuffle6
+  label "\[value in]-->\[value out]"
+  xpos 1328
+  ypos 537
+ }
+ Merge2 {
+  inputs 2
+  bbox B
+  name Merge3
+  xpos 1328
+  ypos 622
+ }
+ Copy {
+  inputs 2
+  from0 rgba.alpha
+  to0 rgba.alpha
+  from1 -rgba.alpha
+  to1 -rgba.blue
+  name Copy1
+  xpos 1328
+  ypos 746
+ }
+set N28229fe0 [stack 0]
+ Dot {
+  name Dot21
+  xpos 1544
+  ypos 755
+ }
+ Input {
+  inputs 0
+  name mask
+  xpos -154
+  ypos -747
+  number 2
+ }
+ Clamp {
+  name Clamp7
+  xpos -154
+  ypos -721
+ }
+ Invert {
+  name Invert3
+  xpos -154
+  ypos -683
+ }
+ Dot {
+  name Dot15
+  xpos -120
+  ypos 1892
+ }
+push $Nf0d59380
+ Dot {
+  name Dot6
+  xpos 330
+  ypos -238
+ }
+ Dot {
+  name Dot13
+  xpos 330
+  ypos 1296
+ }
+set N2825a940 [stack 0]
+ Shuffle {
+  red black
+  green black
+  blue black
+  alpha black
+  name Shuffle12
+  xpos 74
+  ypos 1600
+ }
+ Grid {
+  number {6 0}
+  size {{width/2/number}}
+  color {0.5 0.5 0.5 1}
+  name Grid1
+  xpos 74
+  ypos 1659
+ }
+push $N2ca63160
+ Shuffle {
+  red alpha
+  green alpha
+  blue alpha
+  name Shuffle15
+  label "\[value in]-->\[value out]"
+  xpos 184
+  ypos 1530
+ }
+ Add {
+  value 0.5
+  name Add1
+  xpos 184
+  ypos 1587
+ }
+ Clamp {
+  minimum 0.5
+  MinClampTo {1 0 0 0}
+  MinClampTo_enable true
+  name Clamp2
+  xpos 214
+  ypos 1661
+ }
+ Merge2 {
+  inputs 2
+  name Merge11
+  label "blacks match"
+  xpos 194
+  ypos 1760
+ }
+set N2845a280 [stack 0]
+ Shuffle {
+  alpha black
+  name Shuffle16
+  xpos 328
+  ypos 1745
+ }
+push $N2825a940
+ Shuffle {
+  red black
+  green black
+  blue black
+  alpha black
+  name Shuffle1
+  xpos 296
+  ypos 1546
+ }
+ Grid {
+  number {6 0}
+  size {{width/2/number}}
+  color {0.5 {color.r} {color.r} 1}
+  name Grid2
+  selected true
+  xpos 296
+  ypos 1611
+ }
+ Grade {
+  channels rgba
+  black {{MASTER.minimum}}
+  black_clamp false
+  name Grade4
+  xpos 457
+  ypos 1611
+  disable true
+ }
+ Add {
+  value -0.5
+  name Add3
+  xpos 641
+  ypos 1606
+  disable true
+ }
+push $N2b22f7b0
+ Shuffle {
+  red alpha
+  green alpha
+  blue alpha
+  name Shuffle14
+  xpos 574
+  ypos 644
+ }
+ Dot {
+  name Dot11
+  xpos 858
+  ypos 652
+ }
+ Shuffle {
+  red alpha
+  green alpha
+  blue alpha
+  name Shuffle13
+  label "\[value in]-->\[value out]"
+  xpos 850
+  ypos 1465
+ }
+ Add {
+  value {{parent.Add3.value}}
+  name Add2
+  xpos 855
+  ypos 1523
+  disable true
+ }
+ Merge2 {
+  inputs 2
+  name Merge1
+  label "Density match"
+  xpos 850
+  ypos 1624
+ }
+ Shuffle {
+  green red
+  blue red
+  alpha black
+  name Shuffle3
+  xpos 990
+  ypos 1598
+ }
+push $N2a84b8c0
+ Dot {
+  name Dot19
+  xpos 1495
+  ypos 417
+ }
+ Dot {
+  name Dot18
+  xpos 1495
+  ypos 1206
+ }
+push $N2b255760
+ FrameHold {
+  first_frame {{MASTER.frameHold}}
+  name FrameHold
+  xpos 428
+  ypos 804
+ }
+ Crop {
+  box {{parent.MASTER.cropScreen} {parent.MASTER.cropScreen} {parent.MASTER.cropScreen} {parent.MASTER.cropScreen}}
+  name Crop1
+  xpos 428
+  ypos 855
+ }
+ Blur {
+  channels rgba
+  size 100
+  filter box
+  quality 25
+  name Blur3
+  xpos 428
+  ypos 897
+ }
+ Crop {
+  box {{parent.Crop1.box.x+((parent.Crop1.box.r-parent.Crop1.box.x)*0.5) x1012 -27} {int(parent.Crop1.box.y+((parent.Crop1.box.t-parent.Crop1.box.y)*0.5))} {int(parent.Crop1.box.x+((parent.Crop1.box.r-parent.Crop1.box.x)*0.5)+1)} {int(int(parent.Crop1.box.y+((parent.Crop1.box.t-parent.Crop1.box.y)*0.5)+1))}}
+  reformat true
+  crop false
+  name Crop3
+  xpos 428
+  ypos 938
+ }
+ Dot {
+  name Dot17
+  xpos 462
+  ypos 1087
+ }
+push $Nfbff4c30
+ Merge2 {
+  inputs 2
+  bbox B
+  name Merge4
+  xpos 1095
+  ypos 1094
+ }
+push $N28229fe0
+add_layer {inverseOver inverseOver.red inverseOver.green inverseOver.blue inverseOver.alpha}
+ Shuffle {
+  out inverseOver
+  name Shuffle5
+  label "\[value in]-->\[value out]"
+  xpos 1328
+  ypos 1040
+ }
+ Copy {
+  inputs 2
+  from0 rgba.alpha
+  to0 inverseOver.alpha
+  name Copy3
+  xpos 1328
+  ypos 1088
+ }
+ Copy {
+  inputs 2
+  from0 rgba.red
+  to0 rgba.red
+  from1 rgba.green
+  to1 rgba.green
+  from2 rgba.blue
+  to2 rgba.blue
+  name Copy2
+  xpos 1328
+  ypos 1185
+ }
+ Multiply {
+  channels {-inverseOver.red -inverseOver.green -inverseOver.blue inverseOver.alpha}
+  value {{MASTER.mix}}
+  name Multiply1
+  xpos 1333
+  ypos 1443
+ }
+ Multiply {
+  channels alpha
+  value {{MASTER.mix}}
+  name Multiply2
+  xpos 1333
+  ypos 1479
+ }
+ Switch {
+  inputs 3
+  which {{MASTER.setupMode x1021 0}}
+  name Switch1
+  xpos 1328
+  ypos 1598
+ }
+set N3d2586c0 [stack 0]
+ Shuffle {
+  in inverseOver
+  name Shuffle11
+  label "\[value in]-->\[value out]"
+  xpos 1200
+  ypos 1769
+ }
+ Dot {
+  name Dot7
+  xpos 1242
+  ypos 1847
+ }
+push $N3d2586c0
+ Keymix {
+  inputs 3
+  channels rgba
+  maskChannel -rgba.alpha
+  name Keymix2
+  xpos 1328
+  ypos 1889
+  disable {{maskChannel?none:1 x1013 1}}
+ }
+ Output {
+  name Output2
+  xpos 1328
+  ypos 2156
+ }
+ NoOp {
+  inputs 0
+  name MASTER
+  xpos 1765
+  ypos 1599
+  addUserKnob {20 User}
+  addUserKnob {26 ""}
+  addUserKnob {15 cropScreen l "crop screen"}
+  cropScreen {1176 604 1800 1367}
+  addUserKnob {3 frameHold l "frame hold"}
+  frameHold 1000
+  addUserKnob {26 ""}
+  addUserKnob {4 setupMode l "setup mode" M {off "key density" minimum "" ""}}
+  addUserKnob {7 KeyDensity l "key density" R 0.01 4}
+  KeyDensity 0.5
+  addUserKnob {7 minimum R 0 2}
+  addUserKnob {26 ""}
+  addUserKnob {26 test02 l fixMatteBlacks: T " "}
+  addUserKnob {6 fixMatteBlacks l "" -STARTLINE}
+  addUserKnob {7 fixInfNans R 0 0.01}
+  addUserKnob {26 ""}
+  addUserKnob {7 mix}
+  mix 1
+ }
+push $N2845a280
+ Viewer {
+  viewerProcess ra_bluescreen_grade.cube
+  input_process false
+  name Viewer1
+  xpos 440
+  ypos 685
+ }
+end_group
+set N3e410240 [stack 0]
+Premult {
+ name Premult8
+ selected true
+ xpos 17315
+ ypos -6954
+}
+push $N3e410240
+push 0
+Group {
+ inputs 2
+ name InverseOver
+ selected true
+ xpos 17482
+ ypos -7001
+ addUserKnob {20 inverseOver l "Inverse Over"}
+ addUserKnob {41 in l "invOver input channel" T Shuffle1.in}
+ addUserKnob {26 credit l "" +STARTLINE +INVISIBLE T "The idea of using this for keying and the name goes to Thomas Dyn (credit retained in node please)\n\nAlthough since discovering this technique someone else have also shown me this same technique from thier toolbox used in shake(pre-nuke) - they called it the 'holy matte' trick."}
+}
+ Input {
+  inputs 0
+  name InvOver
+  xpos 262
+  ypos -144
+  number 1
+ }
+ Shuffle {
+  in inverseOver
+  name Shuffle1
+  label "\[value in]-->\[value out]"
+  xpos 262
+  ypos -11
+ }
+ Premult {
+  name Premult1
+  xpos 262
+  ypos 68
+ }
+set N21955f80 [stack 0]
+ Invert {
+  name Invert1
+  xpos 262
+  ypos 99
+ }
+set N2195a930 [stack 0]
+ Shuffle {
+  red white
+  green white
+  blue white
+  alpha white
+  name Shuffle2
+  label "\[value in]-->\[value out]"
+  xpos 152
+  ypos 99
+ }
+ Dot {
+  name Dot1
+  selected true
+  xpos 186
+  ypos 199
+ }
+push $N2195a930
+ Merge2 {
+  inputs 2
+  operation divide
+  name Merge1
+  xpos 255
+  ypos 196
+ }
+ Shuffle {
+  red alpha
+  green alpha
+  blue alpha
+  name Shuffle3
+  label "\[value in]-->\[value out]"
+  xpos 255
+  ypos 323
+ }
+ Input {
+  inputs 0
+  name bg
+  xpos 386
+  ypos -131
+ }
+set N21806ae0 [stack 0]
+ Dot {
+  name Dot3
+  xpos 420
+  ypos 186
+ }
+push $N21955f80
+ Dot {
+  name Dot2
+  xpos 521
+  ypos 71
+ }
+ Merge2 {
+  inputs 2
+  operation minus
+  bbox A
+  name Merge2
+  xpos 487
+  ypos 183
+ }
+ Dot {
+  name Dot5
+  xpos 521
+  ypos 276
+ }
+ Dot {
+  name Dot6
+  xpos 118
+  ypos 276
+ }
+ Dot {
+  name Dot7
+  xpos 121
+  ypos 433
+ }
+ Merge2 {
+  inputs 2
+  operation multiply
+  bbox B
+  name Merge3
+  xpos 255
+  ypos 430
+ }
+ Remove {
+  channels inverseOver
+  name Remove1
+  xpos 255
+  ypos 487
+ }
+push $N21806ae0
+ Dot {
+  name Dot4
+  xpos 692
+  ypos -72
+ }
+ Copy {
+  inputs 2
+  from0 rgba.red
+  to0 rgba.red
+  from1 rgba.green
+  to1 rgba.green
+  from2 rgba.blue
+  to2 rgba.blue
+  channels all
+  bbox B
+  name Copy1
+  xpos 649
+  ypos 459
+ }
+ Output {
+  name Output2
+  xpos 649
+  ypos 752
+ }
+end_group
+Merge2 {
+ inputs 2
+ name Merge23
+ selected true
+ xpos 17482
+ ypos -6954
+}
